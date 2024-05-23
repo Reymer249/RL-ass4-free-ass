@@ -17,7 +17,7 @@ class RollingBuffer:
 
 class BaseTDAgent(object):
 
-    def __init__(self, env, epsilon, alpha, td: int = 1, gamma: float = 1):
+    def __init__(self, env, epsilon: float, alpha: float, td: int, gamma: float = 1):
         # make use of env to get the number of actions and states
         self.n_actions = env.action_size()
         self.n_states = env.state_size()
@@ -30,7 +30,7 @@ class BaseTDAgent(object):
         self.previous_actions = RollingBuffer(n=self.td)
         self.previous_rewards = RollingBuffer(n=self.td)
 
-    def select_action(self, state):
+    def select_action(self, state: int):
         """
         E-gredy actions selection
         :param state: from which state (number)?
@@ -41,7 +41,7 @@ class BaseTDAgent(object):
             a = random.choice(range(self.n_actions))
         return a
 
-    def write_history(self, prev_state, prev_action, reward):
+    def write_history(self, prev_state: int, prev_action: int, reward: int):
         self.previous_states.add(prev_state)
         self.previous_actions.add(prev_action)
         self.previous_rewards.add(reward)
@@ -54,7 +54,7 @@ class BaseTDAgent(object):
 
 class QLearningAgent(BaseTDAgent):
 
-    def update(self, state_prime):
+    def update(self, state_prime: int):
         rewards = self.previous_rewards.get_buffer()
         states = self.previous_states.get_buffer()
         actions = self.previous_actions.get_buffer()
@@ -72,7 +72,7 @@ class QLearningAgent(BaseTDAgent):
 
 class SARSAAgent(BaseTDAgent):
 
-    def update(self, state_prime):
+    def update(self, state_prime: int):
         rewards = self.previous_rewards.get_buffer()
         states = self.previous_states.get_buffer()
         actions = self.previous_actions.get_buffer()
@@ -90,7 +90,7 @@ class SARSAAgent(BaseTDAgent):
 
 class ExpectedSARSAAgent(BaseTDAgent):
 
-    def update(self, state, action, reward, state_prime):
+    def update(self, state_prime: int):
         rewards = self.previous_rewards.get_buffer()
         states = self.previous_states.get_buffer()
         actions = self.previous_actions.get_buffer()
