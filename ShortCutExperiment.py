@@ -76,9 +76,11 @@ def run_repetitions(
         if agent_type == "Q-learning":
             agent = QLearningAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
         elif agent_type == "SARSA":
-             agent = SARSAAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
+            agent = SARSAAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
         elif agent_type == "Exp. SARSA":
-             agent = ExpectedSARSAAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
+            agent = ExpectedSARSAAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
+        else:
+            raise Exception("The agent type specified is not supported. We are sorry :(")
         repetition_curve = run_repetition(env, agent, n_episodes=n_episodes, max_n_steps=max_n_steps)
         env.reset()  # just double-check, it should be also done in the run_repetitions
         curve += repetition_curve
@@ -115,6 +117,8 @@ def experiment(
     :param epsilon: exploration parameter
     :param td_steps: number of the time steps in the TD algs.
     :param best_alphas_dict: The dictionary with the best alphas for every algorithm
+    :param alphas: The list of alphas we want to make experiment with (for every curve)
+    :param use_best_alphas: Whether to ignore the alphas parameter and use the best alpha for the algorithm
     :return: none
     """
 
@@ -170,7 +174,6 @@ def experiment(
                             np.save(f, results)
 
 
-
 if __name__ == "__main__":
     # Setting up the parameters of the experiment
     environment = ShortcutEnvironment()
@@ -189,7 +192,7 @@ if __name__ == "__main__":
     }
     # The experiment itself
     experiment(
-        envs = [environment, windy_environment],
+        envs=[environment, windy_environment],
         n_repetitions=n_repetitions,
         n_episodes=n_episodes,
         max_n_steps=max_n_steps,
