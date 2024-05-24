@@ -28,7 +28,7 @@ def run_repetition(
     :return: A numpy array containing the cumulative reward for each episode.
     """
     episodes_rewards = np.zeros(n_episodes)
-    for i in tqdm(range(n_episodes), desc="running episodes (in each repetition)"):  # for each episode
+    for i in range(n_episodes):  # for each episode
         cum_reward = 0
         for _ in range(max_n_steps):  # simulate one run (episode) with max of n_steps steps
             state = env.state()
@@ -72,7 +72,7 @@ def run_repetitions(
     :return: A numpy array containing the average cumulative reward for each episode across all repetitions.
     """
     curve = np.zeros(n_episodes)
-    for _ in tqdm(range(n_repetitions), desc="running repetitions"):
+    for _ in range(n_repetitions):
         if agent_type == "Q-learning":
             agent = QLearningAgent(environment, epsilon=kwargs["epsilon"], alpha=kwargs["alpha"], td=kwargs["td"])
         elif agent_type == "SARSA":
@@ -94,6 +94,8 @@ def experiment(
         epsilon: float,
         td_steps: list,
         best_alphas_dict: dict,
+        alphas: list,
+        use_best_alphas: bool
 ):
     """
     Conducts experiments comparing Q-learning and SARSA algorithms.
@@ -115,7 +117,6 @@ def experiment(
     :param best_alphas_dict: The dictionary with the best alphas for every algorithm
     :return: none
     """
-    results = np.zeros((3, len(td_steps), 2, n_episodes))
 
     algs = {
         0: "Q-learning",
@@ -123,25 +124,51 @@ def experiment(
         2: "Exp. SARSA"
     }
 
-    for alg_number, alg_name in tqdm(algs.items(), desc=f"running different algorithms"):
-        for env_number in tqdm(range(len(envs)), desc=f"running {alg_name} with diff. envs"):
-            env = envs[env_number]
-            for td_number in tqdm(range(len(td_steps)), desc=f"running {alg_name} with diff. TD steps"):
-                td_value = td_steps[td_number]
-                curve = run_repetitions(
-                    env=env,
-                    agent_type=alg_name,
-                    n_repetitions=n_repetitions,
-                    n_episodes=n_episodes,
-                    max_n_steps=max_n_steps,
-                    epsilon=epsilon,
-                    alpha=best_alphas_dict[alg_name],
-                    td=td_value
-                )
-                curve = smooth(curve, smoothing_window)
-                results[alg_number, td_number, env_number] = curve
-                with open('results.npy', 'wb') as f:
-                    np.save(f, results)
+    if use_best_alphas:
+        results = np.zeros((3, len(td_steps), 2, n_episodes))
+        for alg_number, alg_name in tqdm(algs.items(), desc=f"running different algorithms"):
+            for env_number in tqdm(range(len(envs)), desc=f"running {alg_name} with diff. envs"):
+                env = envs[env_number]
+                for td_number in tqdm(range(len(td_steps)), desc=f"running {alg_name} with diff. TD steps"):
+                    td_value = td_steps[td_number]
+                    curve = run_repetitions(
+                        env=env,
+                        agent_type=alg_name,
+                        n_repetitions=n_repetitions,
+                        n_episodes=n_episodes,
+                        max_n_steps=max_n_steps,
+                        epsilon=epsilon,
+                        alpha=best_alphas_dict[alg_name],
+                        td=td_value
+                    )
+                    curve = smooth(curve, smoothing_window)
+                    results[alg_number, td_number, env_number] = curve
+                    with open('results.npy', 'wb') as f:
+                        np.save(f, results)
+    else:
+        results = np.zeros((3, len(td_steps), len(alphas), 2, n_episodes))
+        for alg_number, alg_name in tqdm(algs.items(), desc=f"running different algorithms"):
+            for env_number in tqdm(range(len(envs)), desc=f"running {alg_name} with diff. envs"):
+                env = envs[env_number]
+                for alpha_number in tqdm(range(len(alphas)), desc=f"running {alg_name} with diff alpha values"):
+                    alpha_value = alphas[alpha_number]
+                    for td_number in tqdm(range(len(td_steps)), desc=f"running {alg_name} with diff. TD steps"):
+                        td_value = td_steps[td_number]
+                        curve = run_repetitions(
+                            env=env,
+                            agent_type=alg_name,
+                            n_repetitions=n_repetitions,
+                            n_episodes=n_episodes,
+                            max_n_steps=max_n_steps,
+                            epsilon=epsilon,
+                            alpha=alpha_value,
+                            td=td_value
+                        )
+                        curve = smooth(curve, smoothing_window)
+                        results[alg_number, td_number, alpha_number, env_number] = curve
+                        with open('results_full.npy', 'wb') as f:
+                            np.save(f, results)
+
 
 
 if __name__ == "__main__":
@@ -152,6 +179,7 @@ if __name__ == "__main__":
     n_episodes = 1_000
     max_n_steps = 100
     td_steps = [1, 2, 4, 8, 16, 32, 64]
+    alphas = [0.2, 0.4, 0.6, 0.8, 1]
     epsilon = 0.1
     smoothing_window = 31
     best_alphas_dict = {
@@ -168,5 +196,7 @@ if __name__ == "__main__":
         td_steps=td_steps,
         epsilon=epsilon,
         smoothing_window=smoothing_window,
-        best_alphas_dict=best_alphas_dict
+        best_alphas_dict=best_alphas_dict,
+        alphas=alphas,
+        use_best_alphas=False
     )
