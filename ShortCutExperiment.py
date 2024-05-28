@@ -148,7 +148,7 @@ def experiment(
                     )
                     curve = smooth(curve, smoothing_window)
                     results[alg_number, td_number, env_number] = curve
-                    with open('results.npy', 'wb') as f:
+                    with open('results_best_alphas.npy', 'wb') as f:
                         np.save(f, results)
     else:  # here we go over all possible values defined in the provided list
         # to query the results after completion, we have to run 
@@ -173,7 +173,7 @@ def experiment(
                         )
                         curve = smooth(curve, smoothing_window)
                         results[alg_number, td_number, alpha_number, env_number] = curve
-                        with open('results_full.npy', 'wb') as f:
+                        with open('results.npy', 'wb') as f:
                             np.save(f, results)
 
 
