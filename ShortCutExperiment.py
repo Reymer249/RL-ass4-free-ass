@@ -2,7 +2,7 @@
 from typing import Union
 import numpy as np
 from ShortCutAgents import QLearningAgent, SARSAAgent, ExpectedSARSAAgent
-from ShortCutEnvironment_new import ShortcutEnvironment, WindyShortcutEnvironment
+from ShortCutEnvironment import ShortcutEnvironment, WindyShortcutEnvironment
 from Helpers import *
 # additional import
 from tqdm import tqdm
@@ -128,7 +128,8 @@ def experiment(
         2: "Exp. SARSA"
     }
 
-    if use_best_alphas:
+    if use_best_alphas:  # here we use the best alphas from the results of the ass. 2
+        # to query the results after completion, we have to run results[alg_number, td_number, env_number]
         results = np.zeros((3, len(td_steps), 2, n_episodes))
         for alg_number, alg_name in tqdm(algs.items(), desc=f"running different algorithms"):
             for env_number in tqdm(range(len(envs)), desc=f"running {alg_name} with diff. envs"):
@@ -149,7 +150,9 @@ def experiment(
                     results[alg_number, td_number, env_number] = curve
                     with open('results.npy', 'wb') as f:
                         np.save(f, results)
-    else:
+    else:  # here we go over all possible values defined in the provided list
+        # to query the results after completion, we have to run 
+        # results[alg_number, td_number, alpha_number, env_number]
         results = np.zeros((3, len(td_steps), len(alphas), 2, n_episodes))
         for alg_number, alg_name in tqdm(algs.items(), desc=f"running different algorithms"):
             for env_number in tqdm(range(len(envs)), desc=f"running {alg_name} with diff. envs"):
