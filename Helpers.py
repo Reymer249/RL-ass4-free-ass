@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 from scipy.signal import savgol_filter
 
 
@@ -36,8 +37,11 @@ class ComparisonPlot:
     def __init__(self, title=None):
         self.fig, self.ax = plt.subplots()
         self.ax.set_xlabel('alpha')
-        self.ax.set_ylabel('Average RMS')
+        self.ax.set_ylabel('AUC')
         self.ax.set_xscale('log')
+        formatter = ScalarFormatter(useMathText=True)
+        formatter.set_powerlimits((0, 0))  # Force scientific notation for all values
+        self.ax.yaxis.set_major_formatter(formatter)
         if title is not None:
             self.ax.set_title(title)
 

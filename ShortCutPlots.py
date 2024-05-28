@@ -5,8 +5,7 @@ from Helpers import *
 def plot(
         smoothing_window: int,
         td_steps: list,
-        alphas: list,
-        optimal_val: int
+        alphas: list
 ):
     """
     Plots results, achieved from conducted experiment using results.npy file.
@@ -20,7 +19,6 @@ def plot(
     :param smoothing_window: size of the smoothing window
     :param td_steps: number of the time steps in the TD algs.
     :param alphas: The list of alphas we want to make experiment with (for every curve)
-    :param optimal_val: The optimal theoretical value for the environment
     :return: none
     """
 
@@ -38,10 +36,10 @@ def plot(
         best_alphas_ExpSARSA_dict = {}
 
         ### EXPERIMENT 1 ###
-        # Plots comparing average RMS errors based on td_steps(i) and alpha(j) for each agent
-        QLearn_plot = ComparisonPlot(title="Average RMS errors of Q-learning based on td_steps and alpha.")
-        SARSA_plot = ComparisonPlot(title="Average RMS errors of SARSA based on td_steps and alpha.")
-        ExpSARSA_plot = ComparisonPlot(title="Average RMS errors of Expected SARSA based on td_steps and alpha.")
+        # Plots comparing AUC based on td_steps(i) and alpha(j) for each agent
+        QLearn_plot = ComparisonPlot(title="AUC of Q-learning curves based on td_steps and alpha.")
+        SARSA_plot = ComparisonPlot(title="AUC SARSA curves based on td_steps and alpha.")
+        ExpSARSA_plot = ComparisonPlot(title="AUC of Expected SARSA based on td_steps and alpha.")
         for i in range(len(td_steps)):
             QLearn_auc = np.zeros(len(alphas))
             SARSA_auc = np.zeros(len(alphas))
@@ -121,11 +119,9 @@ if __name__ == "__main__":
     td_steps = [1, 2, 4, 8, 16, 32, 64]
     alphas = [0.2, 0.4, 0.6, 0.8, 1]
     smoothing_window = 31
-    optimal_val = -7
     # The experiment itself
     plot(
         td_steps=td_steps,
         smoothing_window=smoothing_window,
-        alphas=alphas,
-        optimal_val=optimal_val
+        alphas=alphas
     )
