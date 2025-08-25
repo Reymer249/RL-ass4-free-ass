@@ -173,7 +173,7 @@ def experiment(
                         )
                         curve = smooth(curve, smoothing_window)
                         results[alg_number, td_number, alpha_number, env_number] = curve
-                        with open('results.npy', 'wb') as f:
+                        with open('../results/results.npy', 'wb') as f:
                             np.save(f, results)
 
 
